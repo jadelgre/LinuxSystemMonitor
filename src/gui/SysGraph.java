@@ -78,17 +78,16 @@ public class SysGraph extends JComponent {
 		final int lineNum2 = lineNum;
 		final int value2 = value;
 		final int uIntVal2 = this.uIntVal;
+		
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				try{
-					
 					while ((DataPoints.get(lineNum2)).size() >= uIntVal2 + 1)
 					{
 						(DataPoints.get(lineNum2)).remove(0);
 					}
 					
 					DataPoints.get(lineNum2).add(value2);
-					
 				} catch(IndexOutOfBoundsException exception) {}
 			}
 		});		
