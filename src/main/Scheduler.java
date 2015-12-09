@@ -34,25 +34,21 @@ public class Scheduler extends Thread {
 	
 	public void run() {
 		for (Harvester h : tasks) {
-			Thread task = new Thread(h); // create a new thread for that task and run it
-			task.start();	
+			//Thread task = new Thread(h); // create a new thread for that task and run it
+			h.start();	
 			//System.out.println("z");
 		}
 		while (true)
 		{
-			//System.out.println("a");
 			// Wait for the specified timeout
 			this.delay();
-			//System.out.println("b");
 			// Dispatch each harvester to collect data/update gui.
 			
 			// For those unfamiliar with Java, this is the equivalent of
 			// a for-each loop... For each Harvester h in Tasks...do...
 			for (Harvester h : tasks) {
-			 	 synchronized(h) {
-			 		//System.out.println("c");
-			 		h.notifyAll();
-			 	 }
+			 	//System.out.println("c");
+			 	h.collect();
 			}
 		}
 	}

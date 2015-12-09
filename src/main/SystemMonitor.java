@@ -17,6 +17,7 @@ public class SystemMonitor {
 	}
 	public static void main (String[] args)
 	{
+		
 		SystemMonitorWindow mySysMon = new SystemMonitorWindow();
 		
 		// initialize the CPU data harvester

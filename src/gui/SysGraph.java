@@ -7,7 +7,7 @@ import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.RenderingHints;
 import java.util.ArrayList;
-
+import javax.swing.SwingUtilities;
 import javax.swing.JComponent;
 import javax.swing.border.Border;
 
@@ -23,7 +23,7 @@ public class SysGraph extends JComponent {
 	
 	private ArrayList<ArrayList<Integer>> DataPoints;
 	private int yMin, yMax, xMin, xMax, uIntVal;
-	
+	private int lineNum;
 	/**
 	 * Initializes a new SysGraph object with the specified scale and
 	 * number of data points.
@@ -75,13 +75,23 @@ public class SysGraph extends JComponent {
 	 */
 	public void addDataPoint(int lineNum, int value)
 	{
-		while ((DataPoints.get(lineNum)).size() >= this.uIntVal + 1)
-		{
-			(DataPoints.get(lineNum)).remove(0);
-		}
-		
-		DataPoints.get(lineNum).add(value);
-		
+		final int lineNum2 = lineNum;
+		final int value2 = value;
+		final int uIntVal2 = this.uIntVal;
+		javax.swing.SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				try{
+					
+					while ((DataPoints.get(lineNum2)).size() >= uIntVal2 + 1)
+					{
+						(DataPoints.get(lineNum2)).remove(0);
+					}
+					
+					DataPoints.get(lineNum2).add(value2);
+					
+				} catch(IndexOutOfBoundsException exception) {}
+			}
+		});		
 	}
 	
 	/**
