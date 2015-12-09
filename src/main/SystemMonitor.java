@@ -7,6 +7,7 @@ import gui.SystemMonitorWindow;
 public class SystemMonitor {
 	private static int delay;
 	private static Scheduler processorScheduler;
+	private static Scheduler pidScheduler;
 	
 	public static void setUpdateInterval(int updateInterval)
 	{
@@ -20,11 +21,19 @@ public class SystemMonitor {
 		
 		SystemMonitorWindow mySysMon = new SystemMonitorWindow();
 		
-		// initialize the CPU data harvester
+		// initialize the CPU and mem data harvester arraylist
 		ArrayList<Harvester> processorArray = new ArrayList<Harvester>();
 		processorArray.add(new ProcessorDataHarvester(mySysMon));
+		// add memory harvester ****
 		processorScheduler = new Scheduler(delay, processorArray);
 		processorScheduler.start();
+		
+		// initialize the harvester for PID 
+		ArrayList<Harvester> pidArray = new ArrayList<Harvester>();
+		pidArray.add(new PIDHarvester(mySysMon));
+		
+		pidScheduler = new Scheduler(delay, pidArray);
+		pidScheduler.start();
 
 		
 	}

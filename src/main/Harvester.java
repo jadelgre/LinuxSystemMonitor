@@ -18,7 +18,6 @@ public abstract class Harvester extends Thread {
 		
 	public synchronized void run() { // run the harvester object 
 		while(true) { // while the thread is not interrupted
-			//System.out.println("run");
 			try{
 				this.wait();
 			} catch (InterruptedException e) {

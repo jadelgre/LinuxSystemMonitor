@@ -45,16 +45,8 @@ public class ProcessorDataHarvester extends Harvester {
 			reader = new BufferedReader(new FileReader("/proc/stat"));
 			values = new ArrayList<String>();
 			line = reader.readLine(); // read in the header since we don't need it
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			return null;
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
-		}
-		while(!line.contains("intr")) { // until the line after cpu data
-			try {
+			
+			while(!line.contains("intr")) { // until the line after cpu data
 				line = reader.readLine(); // read in the line
 				if(line.contains("cpu")) { // if it contains cpu info
 					String[] lineValues = line.split(" "); // split on space
@@ -64,11 +56,17 @@ public class ProcessorDataHarvester extends Harvester {
 					}
 					values.add(temp); // add the values string to the array of cpu statistics
 				}
-			} catch (IOException e) {
-				e.printStackTrace();
 			}
+			reader.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			return null;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
 		}
-		
+
 		return values;
 	}
 	
@@ -108,10 +106,11 @@ public class ProcessorDataHarvester extends Harvester {
 				usage += cpuUtil; // add the core cpu usage to the total
 			}
 			usage = usage / 2; // average the two cores together
-			synchronized(userInterface) {
+			//synchronized(userInterface) {
 				userInterface.getCPUGraph().addDataPoint(i / 2, usage); // divide i by 2 to get value in the range of 0-3 for CPU core
+				userInterface.getCPUGraph().addDataPoint(8, 75);
 				userInterface.getCPUGraph().repaint();
-			}
+			//}
 		}
 	}
 }

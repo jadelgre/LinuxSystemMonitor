@@ -55,7 +55,11 @@ public class SystemMonitorWindow extends JFrame implements ActionListener{
 	 */
 	public void addRowToProcList(String[] data)
 	{
-		TableData.addRow(data);
+		try{
+			TableData.addRow(data);
+		} catch (IndexOutOfBoundsException e) {
+			
+		}
 	}
 	
 	/**
@@ -63,11 +67,19 @@ public class SystemMonitorWindow extends JFrame implements ActionListener{
 	 */
 	public void removeAllRowsFromProcList()
 	{
-		while (TableData.getRowCount() >= 1){
-			TableData.removeRow(0);
-		}
+		javax.swing.SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				try{
+					while (TableData.getRowCount() >= 1){
+						TableData.removeRow(0);
+					}
+				} catch (IndexOutOfBoundsException e) {
+					
+				}
 
-		TableData.fireTableDataChanged();
+				TableData.fireTableDataChanged();
+			}
+		});
 	}
 	
 	
