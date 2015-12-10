@@ -11,7 +11,7 @@ public abstract class Harvester extends Thread {
 	}
 	
 	public synchronized void collect() {
-		this.notifyAll();
+		notifyAll();
 	}
 	
 	public abstract void readData(); // abstract method to be implemented by subclasses
@@ -23,7 +23,7 @@ public abstract class Harvester extends Thread {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			readData();
+			this.readData();
 		}
 	}
 }

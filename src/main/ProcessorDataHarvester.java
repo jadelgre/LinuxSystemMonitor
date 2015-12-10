@@ -23,7 +23,7 @@ public class ProcessorDataHarvester extends Harvester {
 		}
 		
 		try {
-			Thread.sleep(250); // wait 250 ms before collecting data again
+			wait(250); // wait 250 ms before collecting data again
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 			return;

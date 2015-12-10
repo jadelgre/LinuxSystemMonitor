@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import gui.SystemMonitorWindow;
 
 public class SystemMonitor {
-	private static int delay;
+	private static int delay = 500;
 	private static int pidDelay = 6000; // 6 second pid delay
 	private static Scheduler processorScheduler;
 	private static Scheduler pidScheduler;
@@ -26,6 +26,7 @@ public class SystemMonitor {
 		ArrayList<Harvester> processorArray = new ArrayList<Harvester>();
 		processorArray.add(new ProcessorDataHarvester(mySysMon));
 		// add memory harvester ****
+		
 		processorScheduler = new Scheduler(delay, processorArray);
 		processorScheduler.start();
 		

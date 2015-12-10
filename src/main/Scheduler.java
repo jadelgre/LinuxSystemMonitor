@@ -25,11 +25,11 @@ public class Scheduler extends Thread {
 		// and wait for the specified timeout
 		try
 		{	
-			Thread.sleep(delayInMS);
+			this.wait(delayInMS);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		notifyAll();
+
 	}
 	
 	public void run() {
@@ -39,7 +39,7 @@ public class Scheduler extends Thread {
 		while (true)
 		{
 			// Wait for the specified timeout
-			this.delay();
+			delay();
 			// Dispatch each harvester to collect data/update gui.
 			
 			// For those unfamiliar with Java, this is the equivalent of
