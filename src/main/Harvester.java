@@ -11,7 +11,7 @@ public abstract class Harvester extends Thread {
 	}
 	
 	public synchronized void collect() {
-		notifyAll();
+		this.notifyAll();
 	}
 	
 	public abstract void readData(); // abstract method to be implemented by subclasses
@@ -19,7 +19,7 @@ public abstract class Harvester extends Thread {
 	public synchronized void run() { // run the harvester object 
 		while(true) { // while the thread is not interrupted
 			try{
-				this.wait();
+				this.wait(); // wait until woken by scheduler
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

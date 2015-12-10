@@ -77,38 +77,64 @@ public class ProcessorDataHarvester extends Harvester {
 				String[] firstTokens = first.get(i).split(" ");
 				String[] secondTokens = second.get(i).split(" ");
 	
-				BigInteger user = new BigInteger(secondTokens[0]);
-				BigInteger userPrevious = new BigInteger(firstTokens[0]);
-				BigInteger userDiff = user.subtract(userPrevious).abs();
-	//			System.out.println("userDiff " + userDiff);
+//				BigInteger user = new BigInteger(secondTokens[0]);
+//				BigInteger userPrevious = new BigInteger(firstTokens[0]);
+//				BigInteger userDiff = user.subtract(userPrevious).abs();
+//	//			System.out.println("userDiff " + userDiff);
 				
-				BigInteger system = new BigInteger(secondTokens[1]);
-				BigInteger systemPrevious = new BigInteger(firstTokens[1]);
-				BigInteger systemDiff = system.subtract(systemPrevious).abs();
-	//			System.out.println("systemDiff " + systemDiff);
+				double user = Double.parseDouble(secondTokens[0]);
+				double userPrevious = Double.parseDouble(firstTokens[0]);
+				double userDiff = Math.abs(user-userPrevious);
 				
-				BigInteger nice = new BigInteger(secondTokens[2]);
-				BigInteger nicePrevious = new BigInteger(firstTokens[2]);
-				BigInteger niceDiff = nice.subtract(nicePrevious).abs();
-	//			System.out.println("niceDiff " + niceDiff);
+//				BigInteger system = new BigInteger(secondTokens[1]);
+//				BigInteger systemPrevious = new BigInteger(firstTokens[1]);
+//				BigInteger systemDiff = system.subtract(systemPrevious).abs();
+//	//			System.out.println("systemDiff " + systemDiff);
+//				
+				double system = Double.parseDouble(secondTokens[1]);
+				double systemPrevious = Double.parseDouble(firstTokens[1]);
+				double systemDiff = Math.abs(system-systemPrevious);
 				
-				BigInteger idle = new BigInteger(secondTokens[3]);
-				BigInteger idlePrevious = new BigInteger(firstTokens[3]);
-				BigInteger idleDiff = idle.subtract(idlePrevious).abs();
-	//			System.out.println("idle " + secondTokens[3]);
+//				BigInteger nice = new BigInteger(secondTokens[2]);
+//				BigInteger nicePrevious = new BigInteger(firstTokens[2]);
+//				BigInteger niceDiff = nice.subtract(nicePrevious).abs();
+//	//			System.out.println("niceDiff " + niceDiff);
+//				
 				
-	//			System.out.println("idleDiff" + idleDiff);			
+				double nice = Double.parseDouble(secondTokens[2]);
+				double nicePrevious = Double.parseDouble(firstTokens[2]);
+				double niceDiff = Math.abs(nice-nicePrevious);
 				
-				double total = userDiff.floatValue() + systemDiff.floatValue() + niceDiff.floatValue() + idleDiff.floatValue();
-				double idlePercent = idleDiff.floatValue() / total * 100;
+//				BigInteger idle = new BigInteger(secondTokens[3]);
+//				BigInteger idlePrevious = new BigInteger(firstTokens[3]);
+//				BigInteger idleDiff = idle.subtract(idlePrevious).abs();
+//	//			System.out.println("idle " + secondTokens[3]);
+				
+	//			System.out.println("idleDiff" + idleDiff);	
+				
+				double idle = Double.parseDouble(secondTokens[3]);
+				double idlePrevious = Double.parseDouble(firstTokens[3]);
+				double idleDiff = Math.abs(idle-idlePrevious);
+				
+
+				
+				//double total = userDiff.floatValue() + systemDiff.floatValue() + niceDiff.floatValue() + idleDiff.floatValue();
+				//double idlePercent = idleDiff.floatValue() / total * 100;
+				
+				
+				double total = userDiff + systemDiff + niceDiff + idleDiff;
+				double idlePercent = idleDiff / total * 100;
 				int cpuUtil = (int) (100.0 - idlePercent);
+				
+//				double numerator = systemDiff + userDiff;
+//				double denominator = numerator + idleDiff;
+//				int cpuUtil = (int) (numerator / denominator);
 				
 				usage += cpuUtil; // add the core cpu usage to the total
 			}
 			usage = usage / 2; // average the two cores together
 			//synchronized(userInterface) {
 				userInterface.getCPUGraph().addDataPoint(i / 2, usage); // divide i by 2 to get value in the range of 0-3 for CPU core
-				userInterface.getCPUGraph().addDataPoint(8, 75);
 				userInterface.getCPUGraph().repaint();
 			//}
 		}

@@ -56,11 +56,6 @@ public class SystemMonitorWindow extends JFrame implements ActionListener{
 	public void addRowToProcList(String[] data)
 	{
 		TableData.addRow(data);
-//		try{
-//			TableData.addRow(data);
-//		} catch (IndexOutOfBoundsException e) {
-//			
-//		}
 	}
 	
 	/**
