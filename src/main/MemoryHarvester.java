@@ -15,8 +15,11 @@ import java.util.ArrayList;
  */
 public class MemoryHarvester extends Harvester {
 
-	public MemoryHarvester(SystemMonitorWindow theGUI) {
+	private int numCores;
+	
+	public MemoryHarvester(SystemMonitorWindow theGUI, int cpuCores) {
 		super(theGUI);
+		numCores = cpuCores;
 	}
 
 	/* (non-Javadoc)
@@ -25,9 +28,14 @@ public class MemoryHarvester extends Harvester {
 	@Override
 	public void readData() {
 		ArrayList<String> linesFromFile = readFile();		
-		tokenizeAndGraphMemoryValues(linesFromFile);		
+		tokenizeAndDisplayMemoryValues(linesFromFile);		
 	}
 
+	/**
+	 * Helper function that reads in all lines of the /proc/meminfo file as strings and returns an array list of those strings.
+	 * 
+	 * @return arraylist of strings, each a line from the file
+	 */
 	private ArrayList<String> readFile() {
 		ArrayList<String> values = null;
 		BufferedReader reader = null;
@@ -49,7 +57,12 @@ public class MemoryHarvester extends Harvester {
 		return values;
 	}
 	
-	private void tokenizeAndGraphMemoryValues (ArrayList<String> lines) {
+	/**
+	 * A helper function that takes the array of lines and finds the relevant lines of data, and adds them to the display
+	 * 
+	 * @param lines takes arraylist containing strings for each line in the file
+	 */
+	private void tokenizeAndDisplayMemoryValues (ArrayList<String> lines) {
 		// initialized to -1 for error case
 		int totalMem = -1, memFree = -1, memActive = -1, memInactive = -1, swapTotal = -1, swapFree = -1, dirtyPages = -1, writeback = -1;
 		
@@ -81,6 +94,22 @@ public class MemoryHarvester extends Harvester {
 			
 		}
 		
+		calculateMemoryUsage(totalMem, memFree);
+		
 		userInterface.updateMemoryInfo(totalMem, memFree, memActive, memInactive, swapTotal, swapFree, dirtyPages, writeback);
+	}
+	
+	/**
+	 * A helper function that takes in the amount of memory free and the total memory and calculates memory usage as a percentage.
+	 * Also graphs memory usage.
+	 * 
+	 * @param totalMem total size of memory
+	 * @param memFree size of memory in use
+	 */
+	private void calculateMemoryUsage(int totalMem, int memFree) {
+		double usedMem = totalMem - memFree;
+		int memoryUsage =(int) (usedMem / totalMem * 100.0); // calculate the percentage of memory currently in use
+		
+		userInterface.getCPUGraph().addDataPoint(numCores, memoryUsage); // add the memory usage to the graph at the last line number
 	}
 }

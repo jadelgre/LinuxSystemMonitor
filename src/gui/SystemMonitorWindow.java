@@ -105,11 +105,11 @@ public class SystemMonitorWindow extends JFrame implements ActionListener{
 	
 	
 	// Default constructor
-	public SystemMonitorWindow()
+	public SystemMonitorWindow(int numCores)
 	{
 		this.setTitle("Linux System Monitor");
-		this.setSize(600, 500);
-		this.setMinimumSize(new Dimension(600,500));
+		this.setSize(600, 600);
+		this.setMinimumSize(new Dimension(950,500));
 		
 		WindowPanel = new JPanel();
 		WindowPanel.setLayout(new GridLayout(3,0));
@@ -128,9 +128,8 @@ public class SystemMonitorWindow extends JFrame implements ActionListener{
 		Prefs.add(fiveSec);
 		MenuBar.add(Prefs);
 		
-		// Creating the System Graph.  Don't forget that you need to make the number
-		// of lines dynamic, I'd recommend passing in a variable.
-		CPUGraph = new SysGraph(0, 60, 0, 100, 5, 500);
+		// Creating the System Graph, number of lines is dynamic to support (theoretically) any number of CPU cores 
+		CPUGraph = new SysGraph(0, 60, 0, 100, numCores + 1, 500); // add lines for available cores + 1 for RAM
 		CPUGraph.setBorder(BorderFactory.createTitledBorder("CPU/Memory Usage"));
 		WindowPanel.add(CPUGraph);
 		

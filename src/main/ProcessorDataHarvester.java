@@ -6,11 +6,11 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 
 public class ProcessorDataHarvester extends Harvester {
-
-	private int numberOfProcessorCores = Runtime.getRuntime().availableProcessors();
+	private int numCores;
 	
-	public ProcessorDataHarvester(SystemMonitorWindow theGUI) {
+	public ProcessorDataHarvester(SystemMonitorWindow theGUI, int cpuCores) {
 		super(theGUI);
+		numCores = cpuCores;
 	}
 
 	@Override
@@ -18,16 +18,11 @@ public class ProcessorDataHarvester extends Harvester {
 		
 		ArrayList<String> firstRead, secondRead;
 		
-		if((firstRead = getProcessorValues()) == null) { // if we failed to read the values
+		if((firstRead = getProcessorValues()) == null) { // if we failed to read the values 
 			return; 
 		}
 		
-		try {
-			wait(250); // wait 250 ms before collecting data again
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-			return;
-		}
+		waitBetweenRead();
 		
 		if((secondRead = getProcessorValues()) == null) { // if we failed to read the values
 			return;
@@ -36,6 +31,23 @@ public class ProcessorDataHarvester extends Harvester {
 		calculateAndGraph(firstRead,secondRead);
 	}
 	
+	/**
+	 * Helper function for waiting between file reads
+	 */
+	private void waitBetweenRead() {
+		try {
+			wait(250); // wait 250 ms before collecting data again
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			return;
+		}
+	}
+	
+	/**
+	 * Helper function that reads in lines containing cpu usage data for each core
+	 * 
+	 * @return array list of strings, each containing a core's usage data
+	 */
 	private ArrayList<String> getProcessorValues() {
 		//System.out.println("Reading CPU data");
 		ArrayList<String> values;
@@ -62,7 +74,6 @@ public class ProcessorDataHarvester extends Harvester {
 			e.printStackTrace();
 			return null;
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return null;
 		}
@@ -70,73 +81,50 @@ public class ProcessorDataHarvester extends Harvester {
 		return values;
 	}
 	
+	/**
+	 * A helper function that calculates the cpu usage for each core and then adds the data to the graph.
+	 * 
+	 * @param first arraylist of strings containing cpu usage info from the initial read
+	 * @param second arraylist of strings containing cpu usage info from the second read
+	 */
 	private void calculateAndGraph(ArrayList<String> first, ArrayList<String> second) {
-		for(int i = 0; i < numberOfProcessorCores; i+=2) { // run 4 times
-			int usage = 0;
-			for(int p = i; p < i+2; p++) { // for each pair of cores
+		for(int i = 0; i < numCores; i++) {
 				String[] firstTokens = first.get(i).split(" ");
 				String[] secondTokens = second.get(i).split(" ");
-	
-//				BigInteger user = new BigInteger(secondTokens[0]);
-//				BigInteger userPrevious = new BigInteger(firstTokens[0]);
-//				BigInteger userDiff = user.subtract(userPrevious).abs();
-//	//			System.out.println("userDiff " + userDiff);
 				
+				// calculate user2 - user1
 				double user = Double.parseDouble(secondTokens[0]);
 				double userPrevious = Double.parseDouble(firstTokens[0]);
 				double userDiff = Math.abs(user-userPrevious);
 				
-//				BigInteger system = new BigInteger(secondTokens[1]);
-//				BigInteger systemPrevious = new BigInteger(firstTokens[1]);
-//				BigInteger systemDiff = system.subtract(systemPrevious).abs();
-//	//			System.out.println("systemDiff " + systemDiff);
-//				
+				// calculate system2 - system1
 				double system = Double.parseDouble(secondTokens[1]);
 				double systemPrevious = Double.parseDouble(firstTokens[1]);
 				double systemDiff = Math.abs(system-systemPrevious);
 				
-//				BigInteger nice = new BigInteger(secondTokens[2]);
-//				BigInteger nicePrevious = new BigInteger(firstTokens[2]);
-//				BigInteger niceDiff = nice.subtract(nicePrevious).abs();
-//	//			System.out.println("niceDiff " + niceDiff);
-//				
-				
+				// calculate nice2 - nice1
 				double nice = Double.parseDouble(secondTokens[2]);
 				double nicePrevious = Double.parseDouble(firstTokens[2]);
 				double niceDiff = Math.abs(nice-nicePrevious);
 				
-//				BigInteger idle = new BigInteger(secondTokens[3]);
-//				BigInteger idlePrevious = new BigInteger(firstTokens[3]);
-//				BigInteger idleDiff = idle.subtract(idlePrevious).abs();
-//	//			System.out.println("idle " + secondTokens[3]);
-				
-	//			System.out.println("idleDiff" + idleDiff);	
-				
+				// calculate idle2 - idle1
 				double idle = Double.parseDouble(secondTokens[3]);
 				double idlePrevious = Double.parseDouble(firstTokens[3]);
 				double idleDiff = Math.abs(idle-idlePrevious);
+								
+//				// calculate CPU usage using method from http://www.pplusdomain.net/cgi-bin/blosxom.cgi/2009/04/02
+//				double total = userDiff + systemDiff + niceDiff + idleDiff;
+//				double idlePercent = idleDiff / total * 100;
+//				int cpuUtil2 = (int) (100.0 - idlePercent);
 				
-
+				// calculate CPU usage using method from https://piazza.com/class/ic02ole9e534k8?cid=137
+				double numerator = systemDiff + userDiff;
+				double denominator = numerator + idleDiff;
+				int cpuUtil = (int) ((numerator / denominator) * 100.0);
 				
-				//double total = userDiff.floatValue() + systemDiff.floatValue() + niceDiff.floatValue() + idleDiff.floatValue();
-				//double idlePercent = idleDiff.floatValue() / total * 100;
-				
-				
-				double total = userDiff + systemDiff + niceDiff + idleDiff;
-				double idlePercent = idleDiff / total * 100;
-				int cpuUtil = (int) (100.0 - idlePercent);
-				
-//				double numerator = systemDiff + userDiff;
-//				double denominator = numerator + idleDiff;
-//				int cpuUtil = (int) (numerator / denominator);
-				
-				usage += cpuUtil; // add the core cpu usage to the total
-			}
-			usage = usage / 2; // average the two cores together
-			//synchronized(userInterface) {
-				userInterface.getCPUGraph().addDataPoint(i / 2, usage); // divide i by 2 to get value in the range of 0-3 for CPU core
+				// Write cpu usage for this core to the graph
+				userInterface.getCPUGraph().addDataPoint(i, cpuUtil);
 				userInterface.getCPUGraph().repaint();
-			//}
 		}
 	}
 }

@@ -11,6 +11,7 @@ import gui.SystemMonitorWindow;
 
 public class PIDHarvester extends Harvester {
 
+
 	public PIDHarvester(SystemMonitorWindow theGUI) {
 		super(theGUI);
 	}
@@ -21,41 +22,59 @@ public class PIDHarvester extends Harvester {
 		
 		File theFile = new File ("/proc/");
 		ArrayList<String[]> allpids = new ArrayList<String[]>();
+		
 		for( File f : theFile.listFiles() ) { // for each file/folder in /proc/
 			String dirName = "";
 			BufferedReader reader = null;
+			int dirNumber;
 			try{ // check to see if it contains an integer, if so it is a pid
-				int dirNumber = Integer.parseInt(f.getName());
-				
-				reader = new BufferedReader(new FileReader("/proc/" + dirNumber + "/status")); // open the status file for that process
-				ArrayList<String> currentProcess = new ArrayList<String>();
-				String currentLine = null;
-				
-				while( (currentLine = reader.readLine()) != null) { // until the end of the file
-					currentProcess.add(currentLine);
-				}
-				reader.close();
-				
-				// get array of string tokens, add to array list of pids to be written
-				String[] dataToDisplay = tokenize(currentProcess); // name, pid, state, threads, vol ctx switch, nonVol ctx sw
-				allpids.add(dataToDisplay);
-				
+				dirNumber = Integer.parseInt(f.getName());				
 			} catch (NumberFormatException e) { // if it's not a pid folder
-				// do nothing lol
-			} catch (FileNotFoundException e) {
-				//e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
+				// skip to the next name
+				continue;
 			}
+			
+			// if it's a pid
+			// get array of string tokens, add to array list of pids to be written
+			ArrayList<String> currentProcess = readFile(dirNumber);
+			String[] dataToDisplay = tokenize(currentProcess); // name, pid, state, threads, vol ctx switch, nonVol ctx sw
+			allpids.add(dataToDisplay);
 		}
+		
 		// add all pids to the gui
 		for(String[] pid : allpids) {
 			userInterface.addRowToProcList(pid);
 		}
 	}
 	
-	// helper method
-	// takes an arraylist containing all lines of data for a given pid and returns all of the tokens for its table entry
+	private ArrayList<String> readFile(int pidNumber){
+		BufferedReader reader = null;
+		ArrayList<String> currentProcess = null;
+		try {
+			reader = new BufferedReader(new FileReader("/proc/" + pidNumber + "/status"));
+			currentProcess = new ArrayList<String>();
+			String currentLine = null;
+			
+			while( (currentLine = reader.readLine()) != null) { // until the end of the file
+				currentProcess.add(currentLine);
+			}
+			reader.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return currentProcess;
+	}
+	
+	/**
+	 * Helper function that takes an arraylist containing all lines of data for a given pid and returns all of the tokens for its table entry
+	 * 
+	 * @param process an arraylist containing all lines of data for a given pid
+	 * @return
+	 */
 	private String[] tokenize(ArrayList<String> process) { 
 		String name = null, pid = null, state = null, threads = null, volctx = null, nonvol = null;
 		
